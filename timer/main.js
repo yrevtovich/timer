@@ -2,9 +2,8 @@
 
 const htmlElements = {};
 let currentDate;
-// let seconds;
-// let minutes;
-// let hours;
+let clockTimerId;
+let stopWhatchId;
 
 htmlElements.startBtn = document.querySelector('.container .buttons button.start');
 htmlElements.stopBtn = document.querySelector('.container .buttons button.stop');
@@ -21,30 +20,29 @@ let clock = document.createElement('div');
 clock.className = 'clock';
 htmlElements.clock = htmlElements.output.appendChild(clock);
 
-let timer = document.createElement('div');
-timer.className = 'timer hidden';
-timer.innerHTML = '0:00:00';
-htmlElements.timer = htmlElements.output.appendChild(timer);
 
-
-let clockTimerId = setTimeout(function clockConstraction() {
+function clockConstraction() {
     currentDate = new Date();  
-    let clock = {}; 
-    clock.seconds = currentDate.getSeconds();
-    clock.minutes = currentDate.getMinutes();
-    clock.hours = currentDate.getHours();
 
-    for (let key in clock) {
-        if (clock[key].toString().length < 2) {
-                clock[key] = '0' + clock[key];
-        }        
+    let time = {}; 
+    time.seconds = timeFormat(currentDate.getSeconds());
+    time.minutes = timeFormat(currentDate.getMinutes());
+    time.hours = timeFormat(currentDate.getHours());
+ 
+    htmlElements.clock.innerHTML = `${time.hours}:${time.minutes}:${time.seconds}`;
+
+    clockTimerId = setTimeout (clockConstraction, 1000);
+}
+
+clockConstraction();
+
+function timeFormat(a) {
+    if (a.toString().length < 2) {
+       return a = `0${a}`;
+    }  else {
+        return a;
     }
-
-    htmlElements.clock.innerHTML = `${clock.hours}:${clock.minutes}:${clock.seconds}`;
-
-    setTimeout (clockConstraction, 1000);
-}, 0);
-
+}
 
 htmlElements.linksContainer.addEventListener('click', function(event) {
     const targetObj = event.target;
@@ -64,24 +62,51 @@ htmlElements.linksContainer.addEventListener('click', function(event) {
 
 function showTimer() {
     if (htmlElements.stopwatch.classList.contains('selected')) {
-        htmlElements.clock.classList.add('hidden');
-        htmlElements.timer.classList.remove('hidden');
         for(let i = 0; i < htmlElements.buttons.length; i++) {        
-            htmlElements.buttons[i].classList.remove('hidden');            
+            htmlElements.buttons[i].classList.remove('hidden');     
+            clearTimeout(clockTimerId);
+            htmlElements.clock.innerHTML = '00:00:00';        
         } 
     } else {
-        htmlElements.clock.classList.remove('hidden');
-        htmlElements.timer.classList.add('hidden');
-        for(let i = 0; i < htmlElements.buttons.length; i++) {        
-            htmlElements.buttons[i].classList.remove('hidden');
-            htmlElements.buttons[i].classList.add('hidden');            
+        for(let i = 0; i < htmlElements.buttons.length; i++) {  
+            htmlElements.buttons[i].classList.add('hidden');   
+            sclearTimeout(stopWhatchId);     
+            clockConstraction();               
         } 
     }  
 }
 
 htmlElements.startBtn.addEventListener('click', function startStopWhatch() {
-    let currentTime = htmlElements.startBtn.innerHTML;
+    let days = 0;
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+
+    setTimeout(function stopWhatchTick() {
+        if (seconds < 60) {
+            seconds = +seconds +1;
+        } else if (minutes < 60) {
+            minutes = +minutes + 1;
+            seconds = 0;
+        } else if (hours < 24) {
+            hours = +hours + 1;
+            minutes = 0;
+        } else {
+            days = 1;
+        }
+
+        hours = timeFormat(hours);
+        minutes = timeFormat(minutes);
+        seconds = timeFormat(seconds);
+
+        if (days == 0) {
+            htmlElements.output.innerHTML = `${hours}:${minutes}:${seconds}`;
+        } else {
+            htmlElements.output.innerHTML = `${days} days ${hours}:${minutes}:${seconds}`;
+        }
     
+        stopWatchId = setTimeout(stopWhatchTick, 1000);
+    }, 1000);    
 })
 
 
