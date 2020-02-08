@@ -2,8 +2,7 @@
 
 const htmlElements = {};
 let currentDate;
-let clockTimerId;
-let stopWhatchId;
+let stopWatchId = 0;
 
 htmlElements.startBtn = document.querySelector('.container .buttons button.start');
 htmlElements.stopBtn = document.querySelector('.container .buttons button.stop');
@@ -16,11 +15,6 @@ htmlElements.linksContainer = document.querySelector('.container .links');
 htmlElements.linksArray = document.querySelectorAll('.container .links a');
 htmlElements.buttons = document.querySelectorAll('.container .buttons button')
 
-let clock = document.createElement('div');
-clock.className = 'clock';
-htmlElements.clock = htmlElements.output.appendChild(clock);
-
-
 function clockConstraction() {
     currentDate = new Date();  
 
@@ -29,12 +23,12 @@ function clockConstraction() {
     time.minutes = timeFormat(currentDate.getMinutes());
     time.hours = timeFormat(currentDate.getHours());
  
-    htmlElements.clock.innerHTML = `${time.hours}:${time.minutes}:${time.seconds}`;
+    htmlElements.output.innerHTML = `${time.hours}:${time.minutes}:${time.seconds}`;
 
     clockTimerId = setTimeout (clockConstraction, 1000);
 }
 
-clockConstraction();
+let clockTimerId = setTimeout(clockConstraction, 0);
 
 function timeFormat(a) {
     if (a.toString().length < 2) {
@@ -63,26 +57,51 @@ htmlElements.linksContainer.addEventListener('click', function(event) {
 function showTimer() {
     if (htmlElements.stopwatch.classList.contains('selected')) {
         for(let i = 0; i < htmlElements.buttons.length; i++) {        
-            htmlElements.buttons[i].classList.remove('hidden');     
-            clearTimeout(clockTimerId);
-            htmlElements.clock.innerHTML = '00:00:00';        
+            htmlElements.buttons[i].classList.remove('hidden');                
         } 
-    } else {
+
+        clearTimeout(clockTimerId);
+        htmlElements.output.innerHTML = '00:00:00';              
+    } else { 
         for(let i = 0; i < htmlElements.buttons.length; i++) {  
-            htmlElements.buttons[i].classList.add('hidden');   
-            sclearTimeout(stopWhatchId);     
-            clockConstraction();               
+            htmlElements.buttons[i].classList.add('hidden');               
         } 
+
+        clearTimeout(stopWatchId);  
+        clockTimerId = setTimeout(clockConstraction, 0);
     }  
 }
 
-htmlElements.startBtn.addEventListener('click', function startStopWhatch() {
+htmlElements.startBtn.addEventListener('click', startStopWhatch);
+
+htmlElements.stopBtn.addEventListener('click', stopStopWatch);
+
+htmlElements.resetBtn.addEventListener('click', resetStopWatch);
+
+function startStopWhatch() {
     let days = 0;
     let hours = 0;
     let minutes = 0;
     let seconds = 0;
 
-    setTimeout(function stopWhatchTick() {
+    let currentTime = htmlElements.output.innerHTML;
+
+    if (currentTime != '00:00:00') {
+        let currentTimeArray = currentTime.split(':');
+        
+        if (currentTimeArray.length = 3) {
+            hours = currentTimeArray[0];
+            minutes = currentTimeArray[1];
+            seconds = currentTimeArray[2];
+        } else {
+            days = currentTimeArray[0];
+            hours = currentTimeArray[1];
+            minutes = currentTimeArray[2];
+            seconds = currentTimeArray[3];
+        }
+    }
+
+    stopWatchId = setTimeout(function stopWhatchTick() {
         if (seconds < 60) {
             seconds = +seconds +1;
         } else if (minutes < 60) {
@@ -107,8 +126,13 @@ htmlElements.startBtn.addEventListener('click', function startStopWhatch() {
     
         stopWatchId = setTimeout(stopWhatchTick, 1000);
     }, 1000);    
-})
+}
 
+function stopStopWatch() {
+    clearTimeout(stopWatchId); 
+}
 
-
-
+function resetStopWatch() {
+    stopStopWatch();
+    htmlElements.output.innerHTML = '00:00:00';
+}
