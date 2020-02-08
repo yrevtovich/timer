@@ -50,11 +50,18 @@ htmlElements.linksContainer.addEventListener('click', function(event) {
             }
         }
     }
-
-    showTimer();      
+    showClock();
+    showStopwatch();  
+    showTimer()    
 })
 
-function showTimer() {
+function showClock() {
+    if (htmlElements.clock.classList.contains('selected')) {
+        clockTimerId = setTimeout(clockConstraction, 0);
+    }  
+}
+
+function showStopwatch() {
     if (htmlElements.stopwatch.classList.contains('selected')) {
         for(let i = 0; i < htmlElements.buttons.length; i++) {        
             htmlElements.buttons[i].classList.remove('hidden');                
@@ -68,7 +75,12 @@ function showTimer() {
         } 
 
         clearTimeout(stopWatchId);  
-        clockTimerId = setTimeout(clockConstraction, 0);
+    }  
+}
+
+function showTimer() {
+    if (htmlElements.timer.classList.contains('selected')) {
+        htmlElements.output.innerHTML = '00:00:00';   
     }  
 }
 
